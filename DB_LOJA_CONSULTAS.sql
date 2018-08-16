@@ -109,8 +109,11 @@ WHERE
 ORDER BY 
 	CLI_NOME ASC;
 */
+
 USE DB_LOJA;
--- QUESTÃO 01
+
+-- 1) Nome  do departamento, descrição do produto, valor de venda e desconto de todos os produtos com estoque acima do mínimo, por ordem de nome do departamento.
+
 SELECT 
     DEP_NOME, PRO_DESCRICAO, PRO_PRECO, DEP_DESCONTO
 FROM
@@ -122,8 +125,11 @@ WHERE
 ORDER BY 
 	DEP_NOME ASC;
     
+    
 USE DB_LOJA;
--- QUESTÃO 02
+
+-- 2) Nome  do departamento, descrição do produto, valor de venda, desconto de todos os produtos do departamento de calçados.
+
 SELECT 
     DEP_NOME, PRO_DESCRICAO, PRO_PRECO, DEP_DESCONTO
 FROM
@@ -135,15 +141,142 @@ WHERE
     
 
 USE DB_LOJA;
--- QUESTÃO 03
-SELECT 
-    *
-FROM
-    TB_CLIENTES_PESSOAS_FISICAS
-        JOIN
-    TB_PESSOAS_FISICAS_ENDERECOS ON FK_PFE_CLI = FK_PFE_PFC
-		JOIN 
-	TB_CLIENTES ON PK_CLI = FK_PFE_CLI;
 
-		
-    
+-- 3) Nome e telefone de todos os clientes dos bairros TIROL, ALECRIM, ou RIBEIRA, por ordem de nome do cliente.
+  
+SELECT 
+    PFC_NOME AS 'NOME', 
+    FPF_FONE AS 'TELEFONE'
+FROM
+    TB_BAIRROS
+		JOIN
+	TB_CEPS ON FK_BAI_CEP = PK_BAI
+		JOIN
+	TB_CLIENTES ON FK_CLI_CEP = PK_CEP
+		JOIN
+	TB_CLIENTES_PESSOAS_FISICAS ON FK_PFC_CLI = PK_CLI
+		JOIN 
+	TB_FONE_PESSOAS_FISICAS ON FK_FPF_PFC = PK_PFC
+WHERE (BAI_NOME LIKE 'LAGOA NOVA') OR (BAI_NOME LIKE 'PETROPOLIS')
+ORDER BY PFC_NOME ASC;
+
+
+USE DB_LOJA;
+
+-- 4) Nome e telefone de todos os fornecedores das cidades NATAL ou  PARNAMIRIM, por ordem de nome do fornecedor.
+  
+SELECT 
+    FOR_RAZAO_SOCIAL AS 'NOME', 
+    FDF_FONE AS 'TELEFONE'
+FROM
+    TB_BAIRROS
+		JOIN
+	TB_CEPS ON FK_BAI_CEP = PK_BAI
+		JOIN
+	TB_FORNECEDORES ON FK_FOR_CEP = PK_CEP
+		JOIN
+	TB_FONE_FORNECEDORES ON FK_FDF_FOR = PK_FOR
+WHERE (BAI_NOME LIKE 'PONTA NEGRA') OR (BAI_NOME LIKE 'CANDELARIA')
+ORDER BY FOR_RAZAO_SOCIAL ASC;
+
+USE DB_LOJA;
+
+-- 5) Nota fiscal, data, descrição das formas de pagamento e nome do vendedor de todas as vendas já realizadas.   
+
+SELECT 
+	VEN_NOME AS 'NOME DO VENDEDOR',
+    VDS_DATA AS 'DATA',
+    VDS_NF AS 'NOTA FISCAL',
+    FDP_FORMA AS 'FORMA DE PAGAMENTO'
+FROM
+    TB_VENDEDORES
+		JOIN
+	TB_VENDAS ON FK_VDS_VEN = PK_VEN
+		JOIN
+	TB_PAGAMENTOS_VENDAS ON FK_PDV_VDS = PK_VDS
+		JOIN
+	TB_FORMAS_PAGAMENTOS ON PK_FDP = FK_PDV_FDP;
+
+-- 6) Nota fiscal, data, descrição das formas de pagamento e nome do vendedor de todas as vendas realizadas no mês de maio de 2017.
+
+SELECT 
+	VEN_NOME AS 'NOME DO VENDEDOR',
+    VDS_DATA AS 'DATA',
+    VDS_NF AS 'NOTA FISCAL',
+    FDP_FORMA AS 'FORMA DE PAGAMENTO'
+FROM
+    TB_VENDEDORES
+		JOIN
+	TB_VENDAS ON FK_VDS_VEN = PK_VEN
+		JOIN
+	TB_PAGAMENTOS_VENDAS ON FK_PDV_VDS = PK_VDS
+		JOIN
+	TB_FORMAS_PAGAMENTOS ON PK_FDP = FK_PDV_FDP
+WHERE VDS_DATA BETWEEN 20170501 AND 20170531;
+
+-- 7) O nome e departamento de todos os produtos que foram comprados pela loja em março de 2012 (elimine eventuais repetições).
+
+SELECT 
+	PRO_NOME AS 'NOME DO PRODUTO', 
+    DEP_NOME AS 'DEPARTAMENTO'
+FROM 
+	TB_PRODUTOS
+		JOIN
+	TB_DEPARTAMENTOS ON FK_PRO_DEP = PK_DEP
+		JOIN
+	TB_ITENS_COMPRAS ON FK_IDC_PRO = PK_PRO
+		JOIN
+	TB_COMPRAS ON PK_COM = FK_IDC_COM
+WHERE COM_DATA BETWEEN 20151001 AND 20151031;
+
+-- 8) O nome e o departamento de todos os produtos que foram vendidos por um determinado departamento. 
+
+SELECT 
+	PRO_NOME AS 'NOME DO PRODUTO',
+    DEP_NOME AS 'DEPARTAMENTO',
+    VDS_DATA AS 'DATA DA VENDA'
+FROM 
+	TB_PRODUTOS
+		JOIN
+	TB_DEPARTAMENTOS ON FK_PRO_DEP = PK_DEP
+		JOIN
+	TB_ITENS_VENDAS ON FK_IDV_PRO = PK_PRO
+		JOIN
+	TB_VENDAS ON PK_VDS = FK_IDV_VDS
+WHERE DEP_NOME LIKE 'FUTEBOL';
+	
+-- 9) O nome e o departamento de todos  os produtos que foram vendidos por um determinado vendedor no primeiro semestre de  2012 (elimine eventuais repetições).
+
+SELECT
+	VEN_NOME AS 'VENDEDOR',
+	PRO_NOME AS 'NOME DO PRODUTO',
+    DEP_NOME AS 'DEPARTAMENTO',
+    VDS_DATA AS 'DATA DA VENDA'
+FROM 
+	TB_PRODUTOS
+		JOIN
+	TB_DEPARTAMENTOS ON FK_PRO_DEP = PK_DEP
+		JOIN
+	TB_ITENS_VENDAS ON FK_IDV_PRO = PK_PRO
+		JOIN
+	TB_VENDAS ON PK_VDS = FK_IDV_VDS
+		JOIN
+	TB_VENDEDORES ON PK_VEN = FK_VDS_VEN
+WHERE (VDS_DATA BETWEEN 20170101 AND 20170631) AND VEN_NOME LIKE '%ANA%';
+
+-- 10) O nome  dos vendedores que nunca venderam nenhum produto.
+
+SELECT
+	VEN_MATRICULA
+FROM 
+	TB_VENDAS
+		JOIN
+	TB_VENDEDORES ON PK_VEN = FK_VDS_VEN
+WHERE PK_VEN != (
+
+SELECT
+	VEN_MATRICULA
+FROM 
+	TB_VENDAS
+		JOIN
+	TB_VENDEDORES ON PK_VEN = FK_VDS_VEN);
