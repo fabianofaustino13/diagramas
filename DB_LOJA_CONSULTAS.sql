@@ -316,3 +316,157 @@ FROM
 		RIGHT JOIN
 	TB_VENDEDORES ON PK_VEN = FK_VDS_VEN
 WHERE FK_VDS_VEN IS NULL;
+
+
+-- #################################################################
+-- 								LISTA 3
+-- #################################################################
+
+-- 1) Nome de todas as cidades e, se existirem, seus respectivos bairros.
+
+USE DB_LOJA;
+
+SELECT 
+	CID_NOME
+FROM
+	TB_CIDADES
+		LEFT JOIN
+	TB_BAIRROS ON FK_BAI_CID = PK_CID;
+
+-- 2) Nome de todas as cidades sem nenhum bairro cadastrado.
+
+USE DB_LOJA;
+
+SELECT 
+	CID_NOME
+FROM
+	TB_CIDADES
+		LEFT JOIN
+	TB_BAIRROS ON FK_BAI_CID = PK_CID
+WHERE PK_BAI IS NULL;
+
+-- 3) Nome de todas as marcas sem nenhum produto cadastrado.
+
+USE DB_LOJA;
+
+SELECT 
+	MAR_NOME
+FROM
+	TB_MARCAS
+		LEFT JOIN
+	TB_PRODUTOS ON FK_PRO_MAR = PK_MAR
+WHERE PK_PRO IS NULL;
+
+-- 4) Nome de todos os produtos que não tiveram nenhuma unidade vendida.
+
+USE DB_LOJA;
+
+SELECT 
+	PRO_NOME
+FROM
+	TB_PRODUTOS
+		LEFT JOIN
+	TB_ITENS_VENDAS ON FK_IDV_PRO = PK_PRO
+WHERE FK_IDV_PRO IS NULL;
+
+-- 5) Nome e fone de todos os vendedores que não venderam nada.
+
+USE DB_LOJA;
+
+SELECT 
+	VEN_NOME AS 'NOME DO VENDEDOR',
+    FDV_FONE AS 'TELEFONE'
+FROM
+	TB_VENDEDORES
+		LEFT JOIN
+	TB_VENDAS ON FK_VDS_VEN = PK_VEN
+		JOIN
+	TB_FONE_VENDEDORES ON FK_FDV_VEN = PK_VEN
+WHERE PK_VDS IS NULL;
+
+-- 6) Nome dos clientes, pessoa física, sem telefone cadastrado.
+
+USE DB_LOJA;
+
+SELECT 
+	PFC_NOME
+FROM
+	TB_CLIENTES
+		JOIN
+	TB_CLIENTES_PESSOAS_FISICAS ON FK_PFC_CLI = PK_CLI
+		LEFT JOIN
+	TB_FONE_PESSOAS_FISICAS ON FK_FPF_PFC = PK_PFC
+WHERE FK_FPF_PFC IS NULL;
+
+-- 7) Nome e fone de todos os fornecedores que já forneceram produtos.
+
+USE DB_LOJA;
+
+SELECT DISTINCT
+	FOR_RAZAO_SOCIAL AS 'NOME DO FORNECEDOR',
+    FDF_FONE AS 'TELEFONE'
+FROM
+	TB_FORNECEDORES
+		JOIN
+	TB_COMPRAS ON FK_COM_FOR = PK_FOR
+		JOIN
+	TB_ITENS_COMPRAS ON FK_IDC_COM = PK_COM
+		JOIN
+	TB_PRODUTOS ON PK_PRO = FK_IDC_PRO
+		JOIN
+	TB_FONE_FORNECEDORES ON FK_FDF_FOR = PK_FOR;
+    
+-- 8) Nome e fone de todos os fornecedores que nunca forneceram.
+
+USE DB_LOJA;
+
+SELECT
+	FOR_RAZAO_SOCIAL AS 'NOME DO FORNECEDOR',
+	FDF_FONE AS 'TELEFONE'
+FROM
+	TB_FORNECEDORES
+		JOIN
+	TB_COMPRAS ON FK_COM_FOR = PK_FOR
+		LEFT JOIN
+	TB_ITENS_COMPRAS ON FK_IDC_COM = PK_COM
+		JOIN
+	TB_FONE_FORNECEDORES ON FK_FDF_FOR = PK_FOR   
+WHERE FK_IDC_COM IS NULL;
+
+-- #################################################################
+-- 								LISTA 4
+-- #################################################################
+
+-- 1) Nome do departamento e a quantidade de produtos associados a cada departamento.
+
+USE DB_LOJA;
+
+SELECT 
+	DEP_NOME AS 'DEPARTAMENTOS',
+    COUNT(DEP_NOME) AS 'TOTAL DE PRODUTOS'
+FROM
+	TB_PRODUTOS
+		JOIN
+	TB_DEPARTAMENTOS ON PK_DEP = FK_PRO_DEP
+GROUP BY DEP_NOME;
+
+-- 2) Nome do cliente e a quantidade de telefones cadastrados para cada cliente,  apenas para clientes com mais de um telefone.
+
+USE DB_LOJA;
+
+SELECT 
+	PFC_NOME AS 'PESSOA FÍSICA',
+	COUNT(PFC_NOME) AS 'TOTAL DE TELEFONE'
+FROM
+	TB_CLIENTES
+		LEFT JOIN
+	 TB_CLIENTES_PESSOAS_FISICAS ON FK_PFC_CLI = PK_CLI
+	 	JOIN
+	 TB_FONE_PESSOAS_FISICAS ON FK_FPF_PFC = PK_PFC
+GROUP BY PFC_NOME
+HAVING COUNT(PFC_NOME) > 1;
+
+-- 3) Quantidade de unidades vendidas e total arrecadado por cada marca.
+
+USE DB_LOJA;
+
