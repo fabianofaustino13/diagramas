@@ -470,3 +470,124 @@ HAVING COUNT(PFC_NOME) > 1;
 
 USE DB_LOJA;
 
+<<<<<<< HEAD
+=======
+SELECT 
+    MAR_NOME AS 'MARCA',
+    PRO_PRECO AS 'PREÇO UNITÁRIO',
+    SUM(IDV_QUANTIDADE) AS 'TOTAL DE UNIDADE VENDIDO',
+    IDV_PRECO AS 'TOTAL POR MARCA'
+FROM 
+	TB_MARCAS
+		JOIN
+	TB_PRODUTOS ON FK_PRO_MAR = PK_MAR
+		JOIN
+	TB_ITENS_VENDAS ON FK_IDV_PRO = PK_PRO
+GROUP BY PK_MAR;
+
+-- 4) Nome do fornecedor e o total gasto em compras, pela loja, com cada fornecedor em 2012.
+
+USE DB_LOJA;
+
+SELECT 
+	FOR_RAZAO_SOCIAL AS 'FORNECEDOR',
+    SUM(COM_PRECO) AS 'TOTAL COMPRA',
+    COM_DATA AS 'DATA DA COMPRA'
+FROM
+	TB_FORNECEDORES
+		JOIN
+	TB_COMPRAS ON FK_COM_FOR = PK_FOR
+WHERE COM_DATA LIKE '2015-%'
+GROUP BY FOR_RAZAO_SOCIAL;
+
+-- 5) Descrição do produto, total de unidades vendidas e total arrecadado por produto em junho de 2012.
+
+USE DB_LOJA;
+
+SELECT 
+	PRO_NOME AS 'PRODUTO',
+    VDS_DATA AS 'DATA',
+    IDV_QUANTIDADE 'QUANTIDADE VENDIDA',
+    IDV_PRECO 'R$'
+FROM
+	TB_PRODUTOS
+		JOIN
+	TB_ITENS_VENDAS ON FK_IDV_PRO = PK_PRO
+		JOIN
+	TB_VENDAS ON PK_VDS = FK_IDV_VDS
+WHERE VDS_DATA LIKE '2017-05-%'
+GROUP BY PRO_NOME;
+
+-- 6) Nome do cliente, quantidade de produtos vendidos e total arrecadadopor cliente em no 1º semestre de 2012,apenas para os cliente sque renderam mais de R$ 100,00 em vendas.
+
+USE DB_LOJA;
+
+SELECT 
+	PFC_NOME AS 'CLIENTE',
+	IDV_QUANTIDADE 'QUANTIDADE VENDIDA',   
+    IDV_PRECO AS 'R$'
+    
+FROM
+	TB_CLIENTES
+		JOIN
+	TB_CLIENTES_PESSOAS_FISICAS ON FK_PFC_CLI = PK_CLI
+		JOIN
+	TB_VENDAS ON FK_VDS_CLI = PK_CLI
+		JOIN
+	TB_ITENS_VENDAS ON FK_IDV_VDS = PK_VDS
+WHERE VDS_DATA BETWEEN '2017-07-01' AND '2017-12-31'
+GROUP BY PFC_NOME
+HAVING IDV_PRECO <= 3000;
+
+-- 7) Descrição do produto, total de unidades compradas e total gasto por produto em março de 2012,apenas para produtos do departamento de calçados.
+
+USE DB_LOJA;
+
+SELECT 
+	DEP_NOME AS 'DEPARTAMENTO',
+    PRO_DESCRICAO AS 'DESCRIÇÃO',
+    IDC_PRECO AS 'PREÇO UNITÁRIO',
+    SUM(IDC_QUANTIDADE) AS 'TOTAL DE UNIDADE COMPRADA',
+    SUM(IDC_PRECO) * SUM(IDC_QUANTIDADE)AS 'INVESTIMENTO',
+    COM_DATA
+FROM 
+	TB_DEPARTAMENTOS
+		JOIN
+	TB_PRODUTOS ON FK_PRO_DEP = PK_DEP
+		JOIN
+	TB_ITENS_COMPRAS ON FK_IDC_PRO = PK_PRO
+		JOIN
+	TB_COMPRAS ON PK_COM = FK_IDC_COM
+WHERE COM_DATA LIKE '2017%'
+GROUP BY PK_DEP;
+
+-- 8) Descrição  do produto, departamento do produto, totalde unidades vendidas e total arrecadado por produto no primeiro semestre 2012,  apenas para produtos com os quais se arrecadou mais de R$ 500,00. 
+
+USE DB_LOJA;
+
+SELECT 
+	PRO_NOME AS 'PRODUTO',
+    VDS_DATA AS 'DATA',
+    IDV_QUANTIDADE 'QUANTIDADE VENDIDA',
+    IDV_PRECO 'R$'
+FROM
+	TB_PRODUTOS
+		JOIN
+	TB_ITENS_VENDAS ON FK_IDV_PRO = PK_PRO
+		JOIN
+	TB_VENDAS ON PK_VDS = FK_IDV_VDS
+WHERE VDS_DATA LIKE '2017-05-%'
+GROUP BY PRO_NOME;
+
+USE DB_LOJA;
+
+SELECT 
+    *
+FROM
+    TB_PRODUTOS
+        LEFT JOIN
+    TB_MARCAS ON PK_MAR = FK_PRO_MAR
+        LEFT JOIN
+    TB_DEPARTAMENTOS ON PK_DEP = FK_PRO_DEP
+ORDER BY PK_PRO ASC
+>>>>>>> 6965e5cadc8d5d9b93c13cc8f58bb87da969ddc1
